@@ -21,6 +21,8 @@ out/
 .expo/
 .expo-shared/
 *.tsbuildinfo
+next-env.d.ts
+.netlify/
 
 # ── Supabase ─────────────────────────────────────────────────────────────
 supabase/.branches/

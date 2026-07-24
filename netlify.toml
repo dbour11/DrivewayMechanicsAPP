@@ -1,0 +1,12 @@
+# Netlify build configuration for the Next.js web app.
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  # Pin an LTS Node version known-good with Next.js 15.
+  NODE_VERSION = "20"
+
+# Official Next.js runtime — required for proper SSR/routing support on Netlify.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
