@@ -48,11 +48,10 @@ On-demand **mobile auto repair** — a licensed mechanic drives to the customer'
 
 ## 3. Current State
 <!-- UPDATE THIS SECTION AS WORK PROGRESSES -->
-- **Phase: pre-build / planning complete.** No application code exists yet.
-- **Done:** viability analysis, tech-stack decision, and full PRD (all in `research/`). A static marketing landing page exists as a design reference (`driveway-mechanics-landing-page.pdf`, originally a Vite build).
-- **In progress:** nothing in code yet — next step is repo scaffolding + first vertical slice (org/profiles/auth → service areas → quote → book).
-- **Known issues / tech debt:** none yet (no code). Open product tension to resolve with the user: *single-org MVP vs. true multi-org SaaS ambition* — schema supports both, feature scope currently assumes single-org.
-- **Not a git repository yet** — initialize before first commit.
+- **Phase: early build.** Planning complete + a first shippable **Next.js marketing landing page** exists at the repo root (`app/`, `next.config.mjs`, `tsconfig.json`), deployed via Netlify (`netlify.toml`, `@netlify/plugin-nextjs`). The core product app (booking/auth/quote/dispatch) is **not built yet**.
+- **Done:** viability analysis, tech-stack decision, full PRD (all in `research/`); GitHub repo live at `github.com/dbour11/DrivewayMechanicsAPP`; Supabase project **DrivewayMechanicsApp** (ref `pjagzuugtefeeurmnrrs`) provisioned; `.env`/`.env.example` + `scripts/check-env.mjs` (per-app profiles) in place; landing page built from `driveway-mechanics-landing-page.pdf` and deploying on Netlify.
+- **In progress / next:** scaffold the monorepo (`apps/mobile`, `apps/web`, `packages/shared`, `supabase/`) and the first vertical slice (org/profiles/auth → service areas → quote → book). NOTE: the landing page currently lives at the **repo root**, not `apps/web/` — move it under `apps/web/` (with a Netlify base dir) when the monorepo is scaffolded.
+- **Known issues / tech debt:** landing-page-at-root vs. planned `apps/web/` layout (see above). `check-env` is intentionally NOT wired into the build yet (landing page needs no env vars; gating on unfilled secrets would break the deploy). Open product tension to resolve with the user: *single-org MVP vs. true multi-org SaaS ambition* — schema supports both, feature scope currently assumes single-org.
 
 ## 4. Agent Instructions
 **How to approach this codebase:**
