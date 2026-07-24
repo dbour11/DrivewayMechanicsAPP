@@ -1,7 +1,16 @@
 #!/usr/bin/env node
-// check-env.mjs — verifies required environment variables are set before the app boots.
-// Zero dependencies. Run:  node scripts/check-env.mjs
-// Exits 0 if all required vars are present, 1 otherwise. Never prints secret values.
+// check-env.mjs — verifies the environment variables an app needs are set before boot.
+// Zero dependencies. Never prints secret values.
+//
+// Usage:
+//   node scripts/check-env.mjs                 # check ALL apps (union of every var)
+//   node scripts/check-env.mjs --app=web       # only the Next.js web app
+//   node scripts/check-env.mjs --app=mobile    # only the Expo app
+//   node scripts/check-env.mjs --app=server    # only Edge Functions / backend
+//   node scripts/check-env.mjs --app=web,server
+//   node scripts/check-env.mjs --help
+//
+// Exit 0 if every required var for the selected app(s) is set, 1 otherwise.
 
 import { readFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -10,32 +19,56 @@ import { dirname, join } from 'node:path';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const projectRoot = join(__dirname, '..');
 
-// ── Config: which vars must be present ───────────────────────────────────
-// `required`: app cannot run without these. `recommended`: warn but don't fail.
-const groups = {
-  Supabase: {
-    required: ['SUPABASE_URL', 'SUPABASE_PUBLISHABLE_KEY', 'SUPABASE_SERVICE_ROLE_KEY'],
-    recommended: ['EXPO_PUBLIC_SUPABASE_URL', 'EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY',
-                  'NEXT_PUBLIC_SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY'],
-  },
-  Stripe: {
-    required: ['STRIPE_PUBLISHABLE_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET'],
-    recommended: [],
-  },
-  Twilio: {
-    required: ['TWILIO_ACCOUNT_SID', 'TWILIO_AUTH_TOKEN', 'TWILIO_MESSAGING_SERVICE_SID'],
-    recommended: [],
-  },
-  Mapbox: {
-    required: ['MAPBOX_PUBLIC_TOKEN', 'MAPBOX_ACCESS_TOKEN'],
-    recommended: [],
-  },
+// ── Per-app requirements ─────────────────────────────────────────────────
+// Each app lists exactly the vars it needs to boot. Secrets belong to `server`
+// (Edge Functions) only; clients (`web`, `mobile`) get PUBLIC-prefixed values.
+const APPS = {
+  server: [
+    'SUPABASE_URL',
+    'SUPABASE_SERVICE_ROLE_KEY',
+    'STRIPE_SECRET_KEY',
+    'STRIPE_WEBHOOK_SECRET',
+    'TWILIO_ACCOUNT_SID',
+    'TWILIO_AUTH_TOKEN',
+    'TWILIO_MESSAGING_SERVICE_SID',
+    'MAPBOX_ACCESS_TOKEN',
+  ],
+  web: [
+    'NEXT_PUBLIC_SUPABASE_URL',
+    'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY',
+    'STRIPE_PUBLISHABLE_KEY',
+    'MAPBOX_PUBLIC_TOKEN',
+  ],
+  mobile: [
+    'EXPO_PUBLIC_SUPABASE_URL',
+    'EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY',
+    'STRIPE_PUBLISHABLE_KEY',
+    'MAPBOX_PUBLIC_TOKEN',
+  ],
 };
 
-// Vars whose names indicate a public/client value (safe to expose). Everything
-// else is treated as a secret for reporting purposes (value never printed either way).
-const isPublic = (name) =>
-  /PUBLIC|PUBLISHABLE|_URL$/.test(name) && !/SERVICE_ROLE|SECRET|TOKEN$|AUTH_TOKEN/.test(name);
+// ── CLI parsing ──────────────────────────────────────────────────────────
+const argv = process.argv.slice(2);
+if (argv.includes('--help') || argv.includes('-h')) {
+  console.log(
+    `check-env — validate env vars per app\n\n` +
+    `  node scripts/check-env.mjs [--app=<name[,name...]>]\n\n` +
+    `  apps: ${Object.keys(APPS).join(', ')}, or "all" (default)\n`
+  );
+  process.exit(0);
+}
+
+const appArg = (argv.find((a) => a.startsWith('--app=')) || '').split('=')[1] || 'all';
+const selected =
+  appArg === 'all'
+    ? Object.keys(APPS)
+    : appArg.split(',').map((s) => s.trim()).filter(Boolean);
+
+const unknown = selected.filter((a) => !APPS[a]);
+if (unknown.length) {
+  console.error(`✗ Unknown app(s): ${unknown.join(', ')}. Valid: ${Object.keys(APPS).join(', ')}, all`);
+  process.exit(2);
+}
 
 // ── Minimal .env parser (handles inline `# comments` and quotes) ──────────
 function parseEnvFile(path) {
@@ -48,7 +81,6 @@ function parseEnvFile(path) {
     if (eq === -1) continue;
     const key = line.slice(0, eq).trim();
     let val = line.slice(eq + 1);
-    // Quoted value: take contents verbatim. Unquoted: strip trailing ` # comment`.
     const quoted = val.match(/^\s*(['"])(.*?)\1\s*$/);
     if (quoted) {
       val = quoted[2];
@@ -64,42 +96,31 @@ function parseEnvFile(path) {
 
 // process.env wins over .env (CI / hosting inject real values via the environment).
 const fromFile = parseEnvFile(join(projectRoot, '.env'));
-const get = (name) => (process.env[name] ?? fromFile[name] ?? '').trim();
+const isSet = (name) => (process.env[name] ?? fromFile[name] ?? '').trim() !== '';
 
-// ── Run checks ───────────────────────────────────────────────────────────
-const missingRequired = [];
-const missingRecommended = [];
-const lines = [];
+// ── Run checks per selected app ──────────────────────────────────────────
+const missing = new Set();
+const lines = [`Environment variable check — apps: ${selected.join(', ')}`];
 
-for (const [group, { required, recommended }] of Object.entries(groups)) {
-  lines.push(`\n  ${group}`);
-  for (const name of required) {
-    const ok = get(name) !== '';
-    if (!ok) missingRequired.push(name);
-    lines.push(`    ${ok ? '✓' : '✗'} ${name}${ok ? '' : '   MISSING (required)'}`);
-  }
-  for (const name of recommended) {
-    const ok = get(name) !== '';
-    if (!ok) missingRecommended.push(name);
-    lines.push(`    ${ok ? '✓' : '•'} ${name}${ok ? '' : '   not set (recommended)'}`);
+for (const app of selected) {
+  lines.push(`\n  ${app}`);
+  for (const name of APPS[app]) {
+    const ok = isSet(name);
+    if (!ok) missing.add(name);
+    lines.push(`    ${ok ? '✓' : '✗'} ${name}${ok ? '' : '   MISSING'}`);
   }
 }
+console.log(lines.join('\n'));
 
-console.log('Environment variable check' + lines.join('\n'));
-
-if (missingRecommended.length) {
-  console.warn(`\n⚠  ${missingRecommended.length} recommended var(s) not set: ${missingRecommended.join(', ')}`);
-}
-
-if (missingRequired.length) {
+if (missing.size) {
   console.error(
-    `\n✗ Missing ${missingRequired.length} required environment variable(s):\n   ` +
-    missingRequired.join('\n   ') +
+    `\n✗ Missing ${missing.size} required variable(s) for [${selected.join(', ')}]:\n   ` +
+    [...missing].join('\n   ') +
     `\n\n   Copy .env.example → .env and fill in the blanks (see CLAUDE.md §6).` +
     `\n   Values are never printed by this script.\n`
   );
   process.exit(1);
 }
 
-console.log('\n✓ All required environment variables are set.\n');
+console.log(`\n✓ All required variables for [${selected.join(', ')}] are set.\n`);
 process.exit(0);
