@@ -50,7 +50,7 @@ This is an exhaustive inventory of the **distinct capabilities ("skills") needed
 | 34 | `env-secrets-management` | Deployment | P0 | 🟢 |
 | 35 | `cicd-pipeline` | Deployment | P0 | 🟡 |
 | 36 | `supabase-deploy` | Deployment | P0 | 🟡 |
-| 37 | `vercel-deploy` | Deployment | P0 | 🟢 |
+| 37 | `netlify-deploy` | Deployment | P0 | 🟢 |
 | 38 | `eas-build` | Deployment | P0 | 🟡 |
 | 39 | `api-doc-generation` | Documentation | P1 | 🟢 |
 | 40 | `schema-doc-generation` | Documentation | P2 | 🟢 |
@@ -329,7 +329,7 @@ This is an exhaustive inventory of the **distinct capabilities ("skills") needed
 1. **Name:** `nextjs-admin-console`
 2. **Description:** Build the Next.js admin/ops console (F-16/F-17): schedule/calendar, dispatch board, and CRUD for pricing/service-areas/technicians.
 3. **Input:** admin APIs; role guard.
-4. **Output:** responsive admin dashboard (desktop-first) on Vercel.
+4. **Output:** responsive admin dashboard (desktop-first) on Netlify.
 5. **Dependencies:** Next.js (App Router), TanStack Query, react-map-gl (area editing). Depends on: `role-based-access`, `dispatch-assignment`, `data-access-layer`, `design-system-setup`.
 6. **Docs:** [Next.js](https://nextjs.org/docs) · [Next.js App Router](https://nextjs.org/docs/app)
 7. **Complexity:** 🔴 Complex — the largest single UI surface.
@@ -339,7 +339,7 @@ This is an exhaustive inventory of the **distinct capabilities ("skills") needed
 1. **Name:** `marketing-site-port`
 2. **Description:** Port the existing landing page (currently a Vite build) into the Next.js app with real CTAs, SEO metadata, and the area/ZIP check + quote estimator wired to live APIs.
 3. **Input:** landing-page reference; quote/area-check endpoints.
-4. **Output:** SEO-optimized marketing site on Vercel.
+4. **Output:** SEO-optimized marketing site on Netlify.
 5. **Dependencies:** Next.js, Tailwind. Depends on: `design-system-setup`, `quote-engine` (public), `postgis-geo-query` (area check).
 6. **Docs:** [Next.js metadata/SEO](https://nextjs.org/docs/app/building-your-application/optimizing/metadata)
 7. **Complexity:** 🟡 Moderate
@@ -421,9 +421,9 @@ This is an exhaustive inventory of the **distinct capabilities ("skills") needed
 1. **Name:** `env-secrets-management`
 2. **Description:** Define and wire environment variables/secrets per environment (names in CLAUDE.md §6); ensure secrets stay server-side (Edge Function env), clients get only publishable keys.
 3. **Input:** the service/keys to configure; target env.
-4. **Output:** `.env.example`, documented env matrix, configured secrets in Supabase/Vercel/EAS.
-5. **Dependencies:** Supabase/Vercel/EAS secret stores. Depends on: none (foundational).
-6. **Docs:** [Supabase secrets](https://supabase.com/docs/guides/functions/secrets) · [Vercel env vars](https://vercel.com/docs/projects/environment-variables) · [EAS secrets](https://docs.expo.dev/build-reference/variables/)
+4. **Output:** `.env.example`, documented env matrix, configured secrets in Supabase/Netlify/EAS.
+5. **Dependencies:** Supabase/Netlify/EAS secret stores. Depends on: none (foundational).
+6. **Docs:** [Supabase secrets](https://supabase.com/docs/guides/functions/secrets) · [Netlify env vars](https://docs.netlify.com/build/environment-variables/overview/) · [EAS secrets](https://docs.expo.dev/build-reference/variables/)
 7. **Complexity:** 🟢 Simple
 8. **Example:** `/env-secrets-management set STRIPE_WEBHOOK_SECRET in staging only`
 
@@ -432,7 +432,7 @@ This is an exhaustive inventory of the **distinct capabilities ("skills") needed
 2. **Description:** GitHub Actions pipeline: lint, typecheck, unit/RLS tests, and gated migration/deploy on merge; preview deploys per PR.
 3. **Input:** repo layout; test/deploy steps.
 4. **Output:** `.github/workflows/*.yml`; green-before-merge gate.
-5. **Dependencies:** GitHub Actions. Depends on: `unit-testing`, `rls-policy-testing`, `supabase-deploy`, `vercel-deploy`. **GitHub MCP** available.
+5. **Dependencies:** GitHub Actions. Depends on: `unit-testing`, `rls-policy-testing`, `supabase-deploy`, `netlify-deploy`. **GitHub MCP** available.
 6. **Docs:** [GitHub Actions](https://docs.github.com/actions) · [Supabase CI/CD](https://supabase.com/docs/guides/deployment/managing-environments)
 7. **Complexity:** 🟡 Moderate
 8. **Example:** `/cicd-pipeline add a CI workflow that blocks merge on failing RLS tests`
@@ -447,15 +447,15 @@ This is an exhaustive inventory of the **distinct capabilities ("skills") needed
 7. **Complexity:** 🟡 Moderate
 8. **Example:** `/supabase-deploy promote staging migrations to prod (with review)`
 
-### 37. `vercel-deploy`
-1. **Name:** `vercel-deploy`
-2. **Description:** Configure Vercel deployment for the Next.js web/admin app with preview URLs and env wiring.
+### 37. `netlify-deploy`
+1. **Name:** `netlify-deploy`
+2. **Description:** Configure Netlify deployment for the Next.js web/admin app with Deploy Previews and env wiring.
 3. **Input:** project config; env vars.
-4. **Output:** connected Vercel project; per-PR previews; prod domain.
-5. **Dependencies:** Vercel. Depends on: `nextjs-admin-console`/`marketing-site-port`, `env-secrets-management`. **Vercel MCP** available.
-6. **Docs:** [Vercel deployments](https://vercel.com/docs/deployments/overview) · [Vercel Git](https://vercel.com/docs/deployments/git)
+4. **Output:** connected Netlify site; per-PR Deploy Previews; prod domain.
+5. **Dependencies:** Netlify. Depends on: `nextjs-admin-console`/`marketing-site-port`, `env-secrets-management`. **Netlify MCP** available.
+6. **Docs:** [Netlify deploys](https://docs.netlify.com/deploy/create-deploys/) · [Netlify + Next.js](https://docs.netlify.com/build/frameworks/framework-setup-guides/nextjs/overview/)
 7. **Complexity:** 🟢 Simple
-8. **Example:** `/vercel-deploy connect the web app with preview deployments`
+8. **Example:** `/netlify-deploy connect the web app with Deploy Previews`
 
 ### 38. `eas-build`
 1. **Name:** `eas-build`
@@ -516,6 +516,6 @@ Listed so scope stays bounded (mirrors PRD §7). Revisit for v2.
 2. **Auth:** `twilio-sms-notifications` → `phone-otp-auth` → `role-based-access` → `rls-policy-testing`.
 3. **Core loop:** `quote-engine` → `mapbox-geocoding`/`postgis-geo-query` → `booking-availability` → `dispatch-assignment` → `realtime-location-tracking` → `mapbox-routing-eta` → `stripe-payment-intent` → `stripe-webhook-handler` → `twilio`/`push` notifications.
 4. **UI:** `expo-screen-scaffold` → `form-validation` → `booking-flow-ui` → `live-tracking-map-ui` → `nextjs-admin-console` → `marketing-site-port`.
-5. **Harden & ship:** `unit-testing` → `edge-function-testing` → `e2e-testing` → `logging-observability` → `cicd-pipeline` → `supabase-deploy`/`vercel-deploy`/`eas-build` → docs.
+5. **Harden & ship:** `unit-testing` → `edge-function-testing` → `e2e-testing` → `logging-observability` → `cicd-pipeline` → `supabase-deploy`/`netlify-deploy`/`eas-build` → docs.
 
 This ordering front-loads the **secured, end-to-end money-making loop** — the exact thing the viability analysis says must be validated before further investment.

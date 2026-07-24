@@ -21,7 +21,7 @@ On-demand **mobile auto repair** — a licensed mechanic drives to the customer'
 **Stack (see `research/tech-stack.md` for rationale):**
 - **Language:** TypeScript end-to-end. (Python only reserved for future ML/route-optimization — not now.)
 - **Mobile (customer + technician apps):** Expo / React Native, Expo Router, NativeWind.
-- **Web (marketing + admin console):** Next.js (App Router) on Vercel.
+- **Web (marketing + admin console):** Next.js (App Router) on Netlify.
 - **Backend / DB / Auth / Realtime / Storage / Functions:** **Supabase**. Custom server logic → Supabase Edge Functions (Deno/TS).
 - **Database:** PostgreSQL + **PostGIS** (geospatial is core: service-area geofencing, nearest-technician, ETA).
 - **State:** TanStack Query for server state, Supabase Realtime for live data, Zustand only for small local UI state. No Redux.
@@ -97,7 +97,7 @@ driveway-mechanics-landing-page.pdf   # Design reference for the marketing site
 | Twilio | SMS/voice + OTP delivery; needs **A2P 10DLC registration** (start early) | https://www.twilio.com/docs |
 | Mapbox | Maps, geocoding, routing, live ETA | https://docs.mapbox.com/ |
 | Expo / EAS | Mobile builds + OTA updates | https://docs.expo.dev/ |
-| Vercel | Web hosting / CI deploys | https://vercel.com/docs |
+| Netlify | Web hosting / CI deploys | https://docs.netlify.com/ |
 
 **Environment variables needed (names only — never commit values):**
 - `SUPABASE_URL`, `SUPABASE_ANON_KEY` (client), `SUPABASE_SERVICE_ROLE_KEY` (server/functions only)

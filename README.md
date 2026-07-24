@@ -26,7 +26,7 @@ Start here — the [`research/`](./research) folder is the source of truth for w
 ## Planned tech stack
 
 - **Mobile (customer + technician):** Expo / React Native · Expo Router · NativeWind
-- **Web (marketing + admin):** Next.js (App Router) on Vercel
+- **Web (marketing + admin):** Next.js (App Router) on Netlify
 - **Backend / DB / Auth / Realtime / Storage / Functions:** Supabase (PostgreSQL + PostGIS, Edge Functions in TypeScript)
 - **Integrations:** Stripe (payments) · Twilio (SMS/OTP) · Mapbox (maps/routing/ETA)
 - **Language:** TypeScript end-to-end

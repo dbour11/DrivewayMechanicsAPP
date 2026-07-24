@@ -9,7 +9,7 @@
 | Layer | Choice | Why in one line |
 |---|---|---|
 | Mobile apps (customer + technician) | **Expo (React Native)** | One codebase → iOS + Android; first-class background GPS for the tech app |
-| Web (marketing + admin) | **Next.js (React)** on Vercel | Reuses the existing landing page; SSR for SEO on the marketing site |
+| Web (marketing + admin) | **Next.js (React)** on Netlify | Reuses the existing landing page; SSR for SEO on the marketing site |
 | Backend / BaaS | **Supabase** (Postgres, Auth, Realtime, Storage, Edge Functions) | Replaces ~80% of custom backend; **MCP server already connected** |
 | Database | **Postgres + PostGIS** | Relational data + real geospatial queries (geofencing, ETA) in one DB |
 | Auth | **Supabase Auth — phone OTP** | Matches "book by phone/text"; row-level security built in |
@@ -17,8 +17,8 @@
 | Payments | **Stripe** | Industry standard; **official MCP server** |
 | SMS / voice | **Twilio** | "Call or Text" + booking notifications |
 | Maps / routing | **Mapbox** | Cheaper than Google for continuous live tracking |
-| Hosting | Supabase + Vercel + Expo EAS | All have real free tiers; **MVP fits under $50/mo easily** |
-| CI/CD | **GitHub Actions + Vercel + EAS Build** | Git-push deploys; **GitHub MCP server** |
+| Hosting | Supabase + Netlify + Expo EAS | All have real free tiers; **MVP fits under $50/mo easily** |
+| CI/CD | **GitHub Actions + Netlify + EAS Build** | Git-push deploys; **GitHub MCP server** |
 
 ---
 
@@ -34,7 +34,7 @@ You have **three distinct front-end surfaces**, and one framework does not serve
 
 **Recommendation:**
 - **Expo (React Native)** for the customer and technician apps — one TypeScript/React codebase compiles to both iOS and Android, satisfying your cross-platform preference. Expo's managed workflow gives you background geolocation, push notifications, and maps without wrestling native toolchains. → [Expo docs](https://docs.expo.dev/) · [React Native docs](https://reactnative.dev/docs/getting-started)
-- **Next.js (React)** for marketing + admin, deployed on Vercel. SSR/SSG gives the marketing page real SEO (important for a local-search business), and you can migrate the existing landing page into it. → [Next.js docs](https://nextjs.org/docs)
+- **Next.js (React)** for marketing + admin, deployed on Netlify (via its Next.js/OpenNext runtime). SSR/SSG gives the marketing page real SEO (important for a local-search business), and you can migrate the existing landing page into it. → [Next.js docs](https://nextjs.org/docs) · [Netlify + Next.js](https://docs.netlify.com/build/frameworks/framework-setup-guides/nextjs/overview/)
 
 > **Why not one React Native codebase for everything (via React Native Web)?** The marketing site needs SEO and fast first paint that RN-Web doesn't do well, and the admin console is desktop-first. Splitting mobile (Expo) from web (Next.js) while sharing types/logic in a monorepo is the pragmatic path.
 
@@ -137,7 +137,7 @@ reviews (id, job_id, rating, body, source)
 | Component | Platform | Notes |
 |---|---|---|
 | Backend, DB, Auth, Storage, Realtime, Functions | **Supabase** | One managed platform. → [Supabase](https://supabase.com/docs) |
-| Marketing site + admin dashboard | **Vercel** | Git-push deploys for Next.js; generous free (Hobby) tier. → [Vercel](https://vercel.com/docs) |
+| Marketing site + admin dashboard | **Netlify** | Git-push deploys + Deploy Previews for Next.js; $0 free tier. → [Netlify](https://docs.netlify.com/) |
 | Mobile app builds + OTA updates | **Expo EAS** | Cloud iOS/Android builds; over-the-air updates. → [EAS](https://docs.expo.dev/eas/) |
 | Payments | **Stripe** | No monthly fee; ~2.9% + 30¢/txn. → [Stripe](https://docs.stripe.com/) |
 | SMS/voice | **Twilio** | Usage-based; A2P 10DLC registration required for US business SMS. → [Twilio](https://www.twilio.com/docs) |
@@ -145,13 +145,13 @@ reviews (id, job_id, rating, body, source)
 
 ### CI/CD approach
 - **GitHub** as source of truth (monorepo: `apps/mobile`, `apps/web`, `supabase/`). → [GitHub](https://docs.github.com/)
-- **Vercel** auto-deploys the web app on every push/PR (preview URLs per PR). → [Vercel Git](https://vercel.com/docs/deployments/git)
+- **Netlify** auto-deploys the web app on every push/PR (Deploy Preview per PR). → [Netlify deploys](https://docs.netlify.com/deploy/create-deploys/)
 - **GitHub Actions** runs lint/typecheck/tests and applies Supabase migrations to staging→prod on merge. → [GitHub Actions](https://docs.github.com/actions)
 - **EAS Build** (triggered manually or via Actions) for store builds; **EAS Update** ships JS-only fixes over-the-air without an app-store review. → [EAS Update](https://docs.expo.dev/eas-update/introduction/)
 
 ### Estimated monthly cost (grounded in current 2026 pricing)
 
-| Stage | Supabase | Vercel | Expo EAS | Twilio | Mapbox | Stripe | **Total (fixed)** |
+| Stage | Supabase | Netlify | Expo EAS | Twilio | Mapbox | Stripe | **Total (fixed)** |
 |---|---|---|---|---|---|---|---|
 | **MVP / pre-launch** | Free ($0) | Free ($0) | Free ($0, 30 builds/mo) | ~$5–10 usage | Free tier | % per txn | **~$0–15/mo ✅** |
 | **~1,000 users** | Pro ($25) | Free–Pro ($0–20) | Free–Starter ($0–19) | ~$15–30 usage | Free–low | % per txn | **~$25–50/mo ✅** |
@@ -160,7 +160,7 @@ reviews (id, job_id, rating, body, source)
 Notes and sources:
 - **Supabase Free:** 500 MB DB, 50k MAUs, 500k Edge Function calls, **no backups**, projects **pause after 7 days idle** — fine for pre-launch, *not* for live customers. **Pro is $25/mo** (first project) with usage-based overages. → [Supabase pricing](https://supabase.com/pricing)
 - **Your <$50/mo MVP budget is comfortably met** — pre-launch is ~$0, and you stay under $50 through roughly your first ~1k users. Plan for the step-up to a few hundred dollars/month around 10k users, driven mostly by Supabase compute/egress, Twilio volume, and Mapbox tracking calls.
-- **Cost watch-items:** (1) Mapbox/Maps calls from naive high-frequency live tracking — throttle location writes; (2) Twilio SMS at volume; (3) Supabase egress. None are surprises if you monitor them. → [Vercel pricing](https://vercel.com/pricing) · [Expo pricing](https://expo.dev/pricing) · [Twilio pricing](https://www.twilio.com/en-us/pricing) · [Mapbox pricing](https://www.mapbox.com/pricing) · [Stripe pricing](https://stripe.com/pricing)
+- **Cost watch-items:** (1) Mapbox/Maps calls from naive high-frequency live tracking — throttle location writes; (2) Twilio SMS at volume; (3) Supabase egress. None are surprises if you monitor them. → [Netlify pricing](https://www.netlify.com/pricing/) · [Expo pricing](https://expo.dev/pricing) · [Twilio pricing](https://www.twilio.com/en-us/pricing) · [Mapbox pricing](https://www.mapbox.com/pricing) · [Stripe pricing](https://stripe.com/pricing)
 
 ---
 
@@ -173,12 +173,12 @@ Your constraint was to *prioritize services with MCP servers for Claude Code* �
 | **Supabase** | Official | **✅ Already connected in this session** | Apply/list migrations, run SQL, generate TS types, inspect logs, run security/perf **advisors**, manage branches — Claude Code builds and evolves your schema directly. → [Supabase MCP](https://supabase.com/docs/guides/getting-started/mcp) |
 | **Stripe** | Official | Available to add | Create products/prices, inspect payments, scaffold Checkout/webhooks, search Stripe docs from the editor. → [Stripe MCP](https://docs.stripe.com/mcp) |
 | **GitHub** | Official | Available to add | Manage repos/PRs/issues/Actions from Claude Code. → [GitHub MCP](https://github.com/github/github-mcp-server) |
-| **Vercel** | Official | Available to add | Inspect deployments, logs, and project config. → [Vercel MCP](https://vercel.com/docs/mcp/vercel-mcp) |
+| **Netlify** | Official | Available to add | Create/manage/deploy sites, env vars, and deploy status. → [Netlify MCP](https://docs.netlify.com/build/build-with-ai/netlify-mcp-server/) |
 
 **What this enables for your workflow:**
 - **Schema-first, AI-driven data layer.** With the Supabase MCP already connected, Claude Code can propose a migration, apply it, regenerate TypeScript types, and run the **advisors** to catch missing RLS policies or slow queries — a tight loop that normally spans several manual CLI steps.
 - **Payments scaffolding with fewer context switches.** The Stripe MCP lets Claude set up products/prices and reason about webhook events without you leaving the editor.
-- **End-to-end from code to deploy.** GitHub + Vercel MCPs mean branch → PR → deploy status is inspectable in-loop.
+- **End-to-end from code to deploy.** GitHub + Netlify MCPs mean branch → PR → deploy status is inspectable in-loop.
 - **Net effect:** Supabase being both the backend *and* an MCP-first platform is the reason it wins your "prioritize MCP" constraint over Firebase (no first-party Claude MCP server of the same depth) and MongoDB.
 
 > ⚠️ **Security note on MCP:** MCP servers that touch production data/keys are powerful. Use **read-only / restricted keys** where offered (Supabase supports read-only mode; Stripe supports restricted keys), scope them to **dev/staging**, and never point a write-enabled MCP at production without review. Treat MCP-driven schema/payment changes with the same care as any migration.
@@ -193,7 +193,7 @@ Your constraint was to *prioritize services with MCP servers for Claude Code* �
                        │                   CLIENTS                     │
                        │                                               │
    Customer app        │  Technician app          Marketing + Admin   │
-   (Expo / RN)         │  (Expo / RN)             (Next.js on Vercel)  │
+   (Expo / RN)         │  (Expo / RN)            (Next.js on Netlify)  │
         │              │       │                          │           │
         │  supabase-js │       │ supabase-js + expo-location          │
         └──────┬───────┴───────┴──────────────┬───────────┘           │
@@ -239,7 +239,7 @@ Your constraint was to *prioritize services with MCP servers for Claude Code* �
 | React / React Native | ✅ | Expo (RN) mobile + Next.js (React) web |
 | Node **or** Python | ✅ | Node/TypeScript (Edge Functions); Python reserved for future ML only |
 | Managed DB w/ good DX (Supabase/Firebase/Mongo) | ✅ | **Supabase (Postgres + PostGIS)** — best fit for relational + geospatial |
-| Prioritize MCP-server services | ✅✅ | **Supabase MCP already connected**; Stripe/GitHub/Vercel MCPs available |
+| Prioritize MCP-server services | ✅✅ | **Supabase MCP already connected**; Stripe/GitHub/Netlify MCPs available |
 | Cost-effective MVP→growth | ✅ | Free tiers → predictable step-ups |
 | **Under $50/mo until revenue** | ✅ | **~$0–15/mo MVP; under $50 through ~1k users** |
 | Official docs for every tech | ✅ | Linked throughout |
