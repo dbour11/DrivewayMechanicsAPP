@@ -143,11 +143,14 @@ function BookingModal({ onClose }: { onClose: () => void }) {
     address: "",
     date: "",
     time: "",
+    problem: "",
   });
 
   const update =
     (key: keyof typeof form) =>
-    (e: React.ChangeEvent<HTMLInputElement>) =>
+    (
+      e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) =>
       setForm((f) => ({ ...f, [key]: e.target.value }));
 
   // No backend yet: compose a prefilled SMS to the shop so the request goes
@@ -162,6 +165,7 @@ function BookingModal({ onClose }: { onClose: () => void }) {
       `Address: ${form.address}`,
       `Preferred date: ${form.date}`,
       `Preferred time: ${form.time}`,
+      `Problem: ${form.problem}`,
     ].join("\n");
     return `sms:${PHONE_E164}?&body=${encodeURIComponent(body)}`;
   };
@@ -266,6 +270,17 @@ function BookingModal({ onClose }: { onClose: () => void }) {
                 onChange={update("time")}
               />
             </div>
+          </div>
+          <div className="field">
+            <label htmlFor="bk-problem">What&apos;s going on with the car?</label>
+            <textarea
+              id="bk-problem"
+              rows={3}
+              placeholder="Describe the problem — e.g. check-engine light on, squealing brakes, won't start…"
+              required
+              value={form.problem}
+              onChange={update("problem")}
+            />
           </div>
           <button type="submit" className="btn btn-primary btn-block">
             Request my driveway visit
