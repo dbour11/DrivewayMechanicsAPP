@@ -501,3 +501,170 @@ a {
     display: none;
   }
 }
+
+/* .link-muted / .btn are now rendered as native <button>: reset button chrome
+   and inherit the page font (color/size come from the base rules above). */
+button.btn,
+button.link-muted {
+  font-family: inherit;
+}
+button.link-muted {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px 4px;
+}
+button.link-muted:hover {
+  color: var(--green-dark);
+}
+
+/* ── Modal ─────────────────────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(15, 46, 41, 0.55);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 24px 16px;
+  overflow-y: auto;
+}
+.modal {
+  background: var(--bg);
+  width: 100%;
+  max-width: 480px;
+  border-radius: var(--radius);
+  box-shadow: 0 24px 60px rgba(15, 46, 41, 0.28);
+  margin: auto;
+  animation: modal-in 0.16s ease-out;
+}
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 22px 0;
+}
+.modal-title {
+  margin: 0;
+  font-size: 22px;
+}
+.modal-close {
+  appearance: none;
+  border: none;
+  background: var(--bg-soft);
+  color: var(--ink);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+.modal-close:hover {
+  background: var(--line);
+}
+.modal-body {
+  padding: 14px 22px 24px;
+}
+.modal-note {
+  color: var(--ink-soft);
+  font-size: 14px;
+  margin: 0 0 16px;
+}
+.modal-success {
+  font-size: 17px;
+  margin: 6px 0 12px;
+}
+.modal-textlink {
+  display: block;
+  margin: 14px auto 0;
+  background: none;
+  border: none;
+  color: var(--ink-soft);
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* ── Form fields ───────────────────────────────────────────────────────── */
+.field {
+  margin-bottom: 14px;
+}
+.field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.field input,
+.modal-body textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 16px; /* 16px avoids iOS zoom-on-focus */
+  color: var(--ink);
+  background: #fff;
+}
+.field input:focus,
+.modal-body textarea:focus {
+  outline: none;
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(23, 150, 107, 0.15);
+}
+.modal-body textarea {
+  resize: vertical;
+  margin-bottom: 12px;
+}
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 460px) {
+  .field-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Contact modal ─────────────────────────────────────────────────────── */
+.contact-block {
+  padding: 16px 0;
+  border-top: 1px solid var(--line);
+}
+.contact-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  margin-bottom: 8px;
+}
+.contact-phone {
+  display: inline-block;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--green-dark);
+  letter-spacing: 0.3px;
+}
+.contact-phone:hover {
+  text-decoration: underline;
+}
+.btn[aria-disabled="true"] {
+  opacity: 0.5;
+  pointer-events: none;
+}

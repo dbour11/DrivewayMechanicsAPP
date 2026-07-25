@@ -74,8 +74,11 @@ const plans = [
   },
 ];
 
+import { CtaProvider, BookButton, ContactButton } from "./components/cta";
+
 export default function Home() {
   return (
+    <CtaProvider>
     <main>
       {/* Header */}
       <header className="site-header">
@@ -87,12 +90,10 @@ export default function Home() {
             </span>
           </a>
           <nav className="header-actions">
-            <a className="link-muted" href="tel:+17725550142">
-              Call or Text
-            </a>
-            <a className="btn btn-primary" href="#book">
+            <ContactButton className="link-muted">Call or Text</ContactButton>
+            <BookButton className="btn btn-primary">
               Book in Your Driveway
-            </a>
+            </BookButton>
           </nav>
         </div>
       </header>
@@ -112,9 +113,9 @@ export default function Home() {
             you never lose a half day at the shop.
           </p>
           <div className="cta-row" id="book">
-            <a className="btn btn-primary btn-lg" href="tel:+17725550142">
+            <BookButton className="btn btn-primary btn-lg">
               Book in Your Driveway
-            </a>
+            </BookButton>
             <a className="btn btn-ghost btn-lg" href="#how">
               See How It Works
             </a>
@@ -214,9 +215,9 @@ export default function Home() {
                     <li key={perk}>✓ {perk}</li>
                   ))}
                 </ul>
-                <a className="btn btn-primary btn-block" href="tel:+17725550142">
+                <BookButton className="btn btn-primary btn-block">
                   Get My Fixed Price
-                </a>
+                </BookButton>
               </article>
             ))}
           </div>
@@ -233,12 +234,12 @@ export default function Home() {
             wonder about that light again.
           </p>
           <div className="cta-row">
-            <a className="btn btn-primary btn-lg" href="tel:+17725550142">
+            <BookButton className="btn btn-primary btn-lg">
               Book in Your Driveway
-            </a>
-            <a className="btn btn-ghost btn-lg" href="tel:+17725550142">
+            </BookButton>
+            <ContactButton className="btn btn-ghost btn-lg">
               Call or Text Us
-            </a>
+            </ContactButton>
           </div>
         </div>
       </section>
@@ -288,5 +289,6 @@ export default function Home() {
         </div>
       </footer>
     </main>
+    </CtaProvider>
   );
 }
