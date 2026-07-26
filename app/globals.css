@@ -631,6 +631,30 @@ button.link-muted:hover {
   resize: vertical;
   margin-bottom: 12px;
 }
+.geo-btn {
+  margin-top: 8px;
+  background: none;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  padding: 9px 13px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--green-dark);
+  cursor: pointer;
+}
+.geo-btn:hover {
+  border-color: var(--green);
+}
+.geo-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.field-error {
+  color: var(--orange);
+  font-size: 13px;
+  margin: 6px 0 0;
+}
 .field-row {
   display: grid;
   grid-template-columns: 1fr 1fr;

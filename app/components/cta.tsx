@@ -153,11 +153,45 @@ function BookingModal({ onClose }: { onClose: () => void }) {
     ) =>
       setForm((f) => ({ ...f, [key]: e.target.value }));
 
+  // Current-location capture. No geocoding key wired yet, so we fill the field
+  // with GPS coordinates and attach a maps link to the request. TODO: reverse-
+  // geocode to a street address via Mapbox (MAPBOX_PUBLIC_TOKEN) when available.
+  const [locating, setLocating] = useState(false);
+  const [geoError, setGeoError] = useState("");
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+
+  const useCurrentLocation = () => {
+    setGeoError("");
+    if (!("geolocation" in navigator)) {
+      setGeoError("Location isn't available on this device — please type your address.");
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const lat = Number(pos.coords.latitude.toFixed(6));
+        const lng = Number(pos.coords.longitude.toFixed(6));
+        setCoords({ lat, lng });
+        setForm((f) => ({ ...f, address: `${lat}, ${lng}` }));
+        setLocating(false);
+      },
+      (err) => {
+        setGeoError(
+          err.code === err.PERMISSION_DENIED
+            ? "Location permission denied — please type your address instead."
+            : "Couldn't get your location — please type your address instead."
+        );
+        setLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  };
+
   // No backend yet: compose a prefilled SMS to the shop so the request goes
   // somewhere real. TODO: POST to Supabase Edge Function / `appointments`
   // table (PRD F-4) once the backend slice is built.
   const smsHref = () => {
-    const body = [
+    const lines = [
       "Driveway Mechanics — booking request",
       `Name: ${form.name}`,
       `Phone: ${form.phone}`,
@@ -166,8 +200,11 @@ function BookingModal({ onClose }: { onClose: () => void }) {
       `Preferred date: ${form.date}`,
       `Preferred time: ${form.time}`,
       `Problem: ${form.problem}`,
-    ].join("\n");
-    return `sms:${PHONE_E164}?&body=${encodeURIComponent(body)}`;
+    ];
+    if (coords) {
+      lines.push(`Map: https://maps.google.com/?q=${coords.lat},${coords.lng}`);
+    }
+    return `sms:${PHONE_E164}?&body=${encodeURIComponent(lines.join("\n"))}`;
   };
 
   const onSubmit = (e: React.FormEvent) => {
@@ -246,8 +283,20 @@ function BookingModal({ onClose }: { onClose: () => void }) {
               placeholder="Where we'll come to your car"
               required
               value={form.address}
-              onChange={update("address")}
+              onChange={(e) => {
+                setCoords(null);
+                setForm((f) => ({ ...f, address: e.target.value }));
+              }}
             />
+            <button
+              type="button"
+              className="geo-btn"
+              onClick={useCurrentLocation}
+              disabled={locating}
+            >
+              {locating ? "Locating…" : "📍 Use my current location"}
+            </button>
+            {geoError && <p className="field-error">{geoError}</p>}
           </div>
           <div className="field-row">
             <div className="field">
