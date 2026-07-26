@@ -238,7 +238,7 @@ function BookingModal({ onClose }: { onClose: () => void }) {
             </div>
           </div>
           <div className="field">
-            <label htmlFor="bk-address">Home address</label>
+            <label htmlFor="bk-address">Home address / Current Location</label>
             <input
               id="bk-address"
               type="text"
