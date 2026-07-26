@@ -14,7 +14,11 @@ const PHONE_DISPLAY = "(772) 555-0142";
 const PHONE_E164 = "+17725550142";
 
 // ── Context so any button on the page opens the shared modals ─────────────
-type CtaCtx = { openBooking: () => void; openContact: () => void };
+type CtaCtx = {
+  openBooking: () => void;
+  openContact: () => void;
+  openAuth: () => void;
+};
 const Ctx = createContext<CtaCtx | null>(null);
 
 function useCta(): CtaCtx {
@@ -26,21 +30,30 @@ function useCta(): CtaCtx {
 export function CtaProvider({ children }: { children: ReactNode }) {
   const [booking, setBooking] = useState(false);
   const [contact, setContact] = useState(false);
+  const [auth, setAuth] = useState(false);
 
   const openBooking = useCallback(() => {
     setContact(false);
+    setAuth(false);
     setBooking(true);
   }, []);
   const openContact = useCallback(() => {
     setBooking(false);
+    setAuth(false);
     setContact(true);
+  }, []);
+  const openAuth = useCallback(() => {
+    setBooking(false);
+    setContact(false);
+    setAuth(true);
   }, []);
 
   return (
-    <Ctx.Provider value={{ openBooking, openContact }}>
+    <Ctx.Provider value={{ openBooking, openContact, openAuth }}>
       {children}
       {booking && <BookingModal onClose={() => setBooking(false)} />}
       {contact && <ContactModal onClose={() => setContact(false)} />}
+      {auth && <AuthModal onClose={() => setAuth(false)} />}
     </Ctx.Provider>
   );
 }
@@ -71,6 +84,21 @@ export function ContactButton({
   const { openContact } = useCta();
   return (
     <button type="button" className={className} onClick={openContact}>
+      {children}
+    </button>
+  );
+}
+
+export function LoginButton({
+  className,
+  children,
+}: {
+  className?: string;
+  children: ReactNode;
+}) {
+  const { openAuth } = useCta();
+  return (
+    <button type="button" className={className} onClick={openAuth}>
       {children}
     </button>
   );
@@ -380,6 +408,234 @@ function ContactModal({ onClose }: { onClose: () => void }) {
           </a>
         </div>
       </div>
+    </Modal>
+  );
+}
+
+// ── Login / Register ───────────────────────────────────────────────────────
+// NOTE: no auth backend yet. For security we NEVER store or transmit the
+// password — on submit we show a "coming soon" confirmation. TODO: wire to
+// Supabase Auth (PRD F-1; confirm username/password vs. phone-OTP) when the
+// backend slice is built.
+function AuthLegal() {
+  return (
+    <p className="auth-legal">
+      By registering or logging in to DrivewayMechanicsAPP, customers are able to
+      track their service history and their current service progress.
+    </p>
+  );
+}
+
+function AuthModal({ onClose }: { onClose: () => void }) {
+  const [view, setView] = useState<
+    "choose" | "login" | "register" | "login-done" | "register-done"
+  >("choose");
+
+  const [login, setLogin] = useState({ username: "", password: "" });
+  const [reg, setReg] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    username: "",
+    password: "",
+  });
+
+  const titles: Record<typeof view, string> = {
+    choose: "Log in or register",
+    login: "Welcome back",
+    register: "Create your account",
+    "login-done": "Almost there",
+    "register-done": "You're on the list",
+  };
+
+  return (
+    <Modal titleId="auth-title" title={titles[view]} onClose={onClose}>
+      {view === "choose" && (
+        <div className="modal-body">
+          <p className="modal-note">
+            Track your service history and watch your live service progress.
+          </p>
+          <div className="auth-choose">
+            <button
+              type="button"
+              className="btn btn-primary btn-block"
+              onClick={() => setView("login")}
+            >
+              Log in — existing client
+            </button>
+            <button
+              type="button"
+              className="btn btn-ghost btn-block"
+              onClick={() => setView("register")}
+            >
+              Register — new client
+            </button>
+          </div>
+          <AuthLegal />
+        </div>
+      )}
+
+      {view === "login" && (
+        <form
+          className="modal-body"
+          onSubmit={(e) => {
+            e.preventDefault();
+            setView("login-done");
+          }}
+        >
+          <div className="field">
+            <label htmlFor="lg-username">Username</label>
+            <input
+              id="lg-username"
+              type="text"
+              autoComplete="username"
+              required
+              autoFocus
+              value={login.username}
+              onChange={(e) =>
+                setLogin((s) => ({ ...s, username: e.target.value }))
+              }
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="lg-password">Password</label>
+            <input
+              id="lg-password"
+              type="password"
+              autoComplete="current-password"
+              required
+              value={login.password}
+              onChange={(e) =>
+                setLogin((s) => ({ ...s, password: e.target.value }))
+              }
+            />
+          </div>
+          <button type="submit" className="btn btn-primary btn-block">
+            Log in
+          </button>
+          <button
+            type="button"
+            className="modal-textlink"
+            onClick={() => setView("choose")}
+          >
+            ← Back
+          </button>
+          <AuthLegal />
+        </form>
+      )}
+
+      {view === "register" && (
+        <form
+          className="modal-body"
+          onSubmit={(e) => {
+            e.preventDefault();
+            setView("register-done");
+          }}
+        >
+          <div className="field">
+            <label htmlFor="rg-name">Full name</label>
+            <input
+              id="rg-name"
+              type="text"
+              autoComplete="name"
+              required
+              autoFocus
+              value={reg.name}
+              onChange={(e) => setReg((s) => ({ ...s, name: e.target.value }))}
+            />
+          </div>
+          <div className="field-row">
+            <div className="field">
+              <label htmlFor="rg-phone">Phone number</label>
+              <input
+                id="rg-phone"
+                type="tel"
+                autoComplete="tel"
+                required
+                value={reg.phone}
+                onChange={(e) =>
+                  setReg((s) => ({ ...s, phone: e.target.value }))
+                }
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="rg-email">Email</label>
+              <input
+                id="rg-email"
+                type="email"
+                autoComplete="email"
+                required
+                value={reg.email}
+                onChange={(e) =>
+                  setReg((s) => ({ ...s, email: e.target.value }))
+                }
+              />
+            </div>
+          </div>
+          <div className="field">
+            <label htmlFor="rg-username">Choose a username</label>
+            <input
+              id="rg-username"
+              type="text"
+              autoComplete="username"
+              required
+              value={reg.username}
+              onChange={(e) =>
+                setReg((s) => ({ ...s, username: e.target.value }))
+              }
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="rg-password">Create a password</label>
+            <input
+              id="rg-password"
+              type="password"
+              autoComplete="new-password"
+              required
+              minLength={8}
+              value={reg.password}
+              onChange={(e) =>
+                setReg((s) => ({ ...s, password: e.target.value }))
+              }
+            />
+          </div>
+          <button type="submit" className="btn btn-primary btn-block">
+            Create account
+          </button>
+          <button
+            type="button"
+            className="modal-textlink"
+            onClick={() => setView("choose")}
+          >
+            ← Back
+          </button>
+          <AuthLegal />
+        </form>
+      )}
+
+      {(view === "login-done" || view === "register-done") && (
+        <div className="modal-body">
+          <p className="modal-success">
+            {view === "register-done"
+              ? `Thanks, ${reg.name.split(" ")[0] || "there"}! `
+              : "Thanks! "}
+            Accounts are coming soon.
+          </p>
+          <p className="modal-note">
+            We&apos;re building secure sign-in so you can track your service
+            history and live service progress. We&apos;ll let you know the moment
+            it&apos;s ready.
+          </p>
+          <button
+            type="button"
+            className="btn btn-primary btn-block"
+            onClick={onClose}
+          >
+            Got it
+          </button>
+          <AuthLegal />
+        </div>
+      )}
     </Modal>
   );
 }

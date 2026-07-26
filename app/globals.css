@@ -500,6 +500,17 @@ a {
   .header-actions .link-muted {
     display: none;
   }
+  /* Keep brand + Book + Log in on one line on small screens */
+  .header-actions {
+    gap: 8px;
+  }
+  .header-actions .btn {
+    padding: 9px 13px;
+    font-size: 13px;
+  }
+  .brand {
+    font-size: 15px;
+  }
 }
 
 /* .link-muted / .btn are now rendered as native <button>: reset button chrome
@@ -691,4 +702,23 @@ button.link-muted:hover {
 .btn[aria-disabled="true"] {
   opacity: 0.5;
   pointer-events: none;
+}
+
+/* ── Auth (login / register) ───────────────────────────────────────────── */
+.auth-choose {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+.auth-choose .btn {
+  margin-top: 0;
+}
+.auth-legal {
+  margin: 18px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  text-align: center;
 }

@@ -74,7 +74,12 @@ const plans = [
   },
 ];
 
-import { CtaProvider, BookButton, ContactButton } from "./components/cta";
+import {
+  CtaProvider,
+  BookButton,
+  ContactButton,
+  LoginButton,
+} from "./components/cta";
 
 export default function Home() {
   return (
@@ -94,6 +99,7 @@ export default function Home() {
             <BookButton className="btn btn-primary">
               Book in Your Driveway
             </BookButton>
+            <LoginButton className="btn btn-ghost">Log in</LoginButton>
           </nav>
         </div>
       </header>
