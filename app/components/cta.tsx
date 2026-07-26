@@ -166,6 +166,7 @@ function BookingModal({ onClose }: { onClose: () => void }) {
   const [submitted, setSubmitted] = useState(false);
   const [form, setForm] = useState({
     name: "",
+    carModel: "",
     phone: "",
     email: "",
     address: "",
@@ -222,6 +223,7 @@ function BookingModal({ onClose }: { onClose: () => void }) {
     const lines = [
       "Driveway Mechanics — booking request",
       `Name: ${form.name}`,
+      `Car: ${form.carModel}`,
       `Phone: ${form.phone}`,
       `Email: ${form.email}`,
       `Address: ${form.address}`,
@@ -276,6 +278,17 @@ function BookingModal({ onClose }: { onClose: () => void }) {
               autoFocus
               value={form.name}
               onChange={update("name")}
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="bk-car">Car model</label>
+            <input
+              id="bk-car"
+              type="text"
+              placeholder="e.g. 2019 Honda CR-V"
+              required
+              value={form.carModel}
+              onChange={update("carModel")}
             />
           </div>
           <div className="field-row">
