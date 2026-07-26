@@ -80,6 +80,7 @@ import {
   ContactButton,
   LoginButton,
 } from "./components/cta";
+import HeroArt from "./components/HeroArt";
 
 export default function Home() {
   return (
@@ -106,40 +107,45 @@ export default function Home() {
 
       {/* Hero */}
       <section id="top" className="hero">
-        <div className="container">
-          <p className="eyebrow">
-            Trusted by South Florida families · Miami · West Palm · Port St. Lucie
-          </p>
-          <h1>
-            That check-engine light? We&apos;ll fix it in your driveway.
-          </h1>
-          <p className="lede">
-            We bring expert auto repair to your home across South Florida. You
-            see the <strong>exact price before we touch your car</strong> — and
-            you never lose a half day at the shop.
-          </p>
-          <div className="cta-row" id="book">
-            <BookButton className="btn btn-primary btn-lg">
-              Book in Your Driveway
-            </BookButton>
-            <a className="btn btn-ghost btn-lg" href="#how">
-              See How It Works
-            </a>
-          </div>
-          <p className="fineprint">
-            Upfront pricing · We come to you · Same-week &amp; weekend availability
-          </p>
-
-          <div className="quote-card">
-            <div className="quote-card-head">
-              <span>Your driveway visit</span>
-              <span className="badge">CONFIRMED</span>
+        <div className="container hero-grid">
+          <div className="hero-copy">
+            <p className="eyebrow">
+              Trusted by South Florida families · Miami · West Palm · Port St. Lucie
+            </p>
+            <h1>
+              That check-engine light? We&apos;ll fix it in your driveway.
+            </h1>
+            <p className="lede">
+              We bring expert auto repair to your home across South Florida. You
+              see the <strong>exact price before we touch your car</strong> — and
+              you never lose a half day at the shop.
+            </p>
+            <div className="cta-row" id="book">
+              <BookButton className="btn btn-primary btn-lg">
+                Book in Your Driveway
+              </BookButton>
+              <a className="btn btn-ghost btn-lg" href="#how">
+                See How It Works
+              </a>
             </div>
-            <p className="quote-vehicle">2019 Honda CR-V · Check-engine diagnostic</p>
-            <div className="quote-price">
-              <span className="quote-price-label">Your fixed price</span>
-              <span className="quote-price-value">$99–$139</span>
-              <span className="quote-price-sub">Locked before we start — no surprises</span>
+            <p className="fineprint">
+              Upfront pricing · We come to you · Same-week &amp; weekend availability
+            </p>
+          </div>
+
+          <div className="hero-art">
+            <HeroArt />
+            <div className="quote-card">
+              <div className="quote-card-head">
+                <span>Your driveway visit</span>
+                <span className="badge">CONFIRMED</span>
+              </div>
+              <p className="quote-vehicle">2019 Honda CR-V · Check-engine diagnostic</p>
+              <div className="quote-price">
+                <span className="quote-price-label">Your fixed price</span>
+                <span className="quote-price-value">$99–$139</span>
+                <span className="quote-price-sub">Locked before we start — no surprises</span>
+              </div>
             </div>
           </div>
         </div>

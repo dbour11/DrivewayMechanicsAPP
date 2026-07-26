@@ -722,3 +722,31 @@ button.link-muted:hover {
   color: var(--ink-soft);
   text-align: center;
 }
+
+/* ── Hero two-column layout (copy left, illustration right) ─────────────── */
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 44px;
+  align-items: start;
+}
+.hero-copy,
+.hero-art {
+  min-width: 0;
+}
+.hero-art {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.hero-art svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+@media (max-width: 860px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+}
